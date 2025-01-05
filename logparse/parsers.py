@@ -11,3 +11,18 @@ def parse_json(line: str) -> LogRecord:
                          data["path"], data["status"], data.get("bytes", 0))
     except (KeyError, TypeError) as exc:
         raise ValueError("invalid JSON log schema") from exc
+
+import re
+from .timestamps import apache_timestamp
+
+APACHE = re.compile(
+    r'^\S+ \S+ \S+ \[([^\]]+)\] "([A-Za-z]+) ([^" ]+) HTTP/[^" ]+" '
+    r'(\d{3}) (\d+|-)(?: "[^"\\]*(?:\\.[^"\\]*)*" "[^"\\]*(?:\\.[^"\\]*)*")?\s*$')
+
+def parse_apache(line: str) -> LogRecord:
+    match = APACHE.fullmatch(line.strip())
+    if not match:
+        raise ValueError("not an Apache common/combined access log")
+    stamp, method, path, status, size = match.groups()
+    return LogRecord(apache_timestamp(stamp), method, path, int(status),
+                     0 if size == "-" else int(size))
