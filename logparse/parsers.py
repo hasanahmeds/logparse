@@ -26,3 +26,10 @@ def parse_apache(line: str) -> LogRecord:
     stamp, method, path, status, size = match.groups()
     return LogRecord(apache_timestamp(stamp), method, path, int(status),
                      0 if size == "-" else int(size))
+
+def parse_line(line: str, format: str = "auto") -> LogRecord:
+    if format not in {"auto", "json", "apache"}:
+        raise ValueError("unknown input format")
+    if format == "auto":
+        format = "json" if line.lstrip().startswith("{") else "apache"
+    return parse_json(line) if format == "json" else parse_apache(line)
