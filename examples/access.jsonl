@@ -1,0 +1,2 @@
+{"timestamp":"2025-01-02T10:00:00Z","method":"GET","path":"/health","status":200,"bytes":12}
+{"timestamp":"2025-01-02T10:01:00Z","method":"POST","path":"/checkout","status":500,"bytes":34}
