@@ -18,6 +18,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--input-format", choices=["auto", "json", "apache"], default="auto")
     parser.add_argument("--format", choices=["json", "csv"], default="json")
     parser.add_argument("--output", type=Path)
+    parser.add_argument("--config", type=Path)
     parser.add_argument("--since")
     parser.add_argument("--until")
     parser.add_argument("--path-prefix", default="")
@@ -31,7 +32,7 @@ def main(argv: list[str] | None = None) -> int:
             raise ValueError("stdin may appear only once")
         filters = Filters(iso_timestamp(args.since) if args.since else None,
                           iso_timestamp(args.until) if args.until else None, args.path_prefix)
-        config = Config()
+        config = Config.load(args.config) if args.config else Config()
         def streams():
             for path in args.inputs:
                 with open_input(path) as stream:
