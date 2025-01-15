@@ -31,6 +31,15 @@ def main(argv: list[str] | None = None) -> int:
     try:
         if args.inputs.count("-") > 1:
             raise ValueError("stdin may appear only once")
+        if args.output:
+            protected = [Path(p) for p in args.inputs if p != "-"]
+            if args.config:
+                protected.append(args.config)
+            for path in protected:
+                if args.output.resolve() == path.resolve() or (
+                    args.output.exists() and path.exists() and args.output.samefile(path)
+                ):
+                    raise ValueError("output cannot overwrite an input or config file")
         filters = Filters(iso_timestamp(args.since) if args.since else None,
                           iso_timestamp(args.until) if args.until else None, args.path_prefix)
         config = Config.load(args.config) if args.config else Config()
