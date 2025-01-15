@@ -16,6 +16,11 @@ def write_csv(report: dict, stream: TextIO) -> None:
                 writer.writerow([key, label, count])
         elif key == "top_paths":
             for item in value:
-                writer.writerow([key, item["path"], item["requests"]])
+                writer.writerow([key, safe_cell(item["path"]), item["requests"]])
         else:
             writer.writerow(["summary", key, value])
+
+def safe_cell(value: str) -> str:
+    if value.lstrip().startswith(("=", "+", "-", "@")) or value.startswith(("\t", "\r", "\n")):
+        return "'" + value
+    return value
