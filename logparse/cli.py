@@ -8,6 +8,7 @@ from .config import Config
 from .filters import Filters
 from .logging_setup import configure
 from .pipeline import analyze
+from .output import atomic_output
 from .reader import open_input
 from .reports import write_csv, write_json
 from .timestamps import iso_timestamp
@@ -40,7 +41,7 @@ def main(argv: list[str] | None = None) -> int:
         report = analyze(streams(), config, filters, args.input_format, args.strict)
         writer = write_json if args.format == "json" else write_csv
         with ExitStack() as stack:
-            output = stack.enter_context(args.output.open("w", encoding="utf-8", newline="")) if args.output else sys.stdout
+            output = stack.enter_context(atomic_output(args.output)) if args.output else sys.stdout
             writer(report, output)
         return 0
     except (OSError, ValueError, EOFError) as exc:
